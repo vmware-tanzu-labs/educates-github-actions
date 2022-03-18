@@ -24,11 +24,11 @@ inputs:
   override-image-reference:
     description: "Image reference in Workshop resource file to replace with GHCR image reference."
     required: false
-    default: "registry.eduk8s.svc.cluster.local:5001/{}-image:latest"
+    default: "registry.eduk8s.svc.cluster.local:5001/{name}-image:latest"
   override-files-reference:
     description: "Files reference in Workshop resource file to replace with GHCR files reference."
     required: false
-    default: "imgpkg+http://registry.eduk8s.svc.cluster.local:5001/{}-files:latest"
+    default: "imgpkg+http://registry.eduk8s.svc.cluster.local:5001/{name}-files:latest"
 
 runs:
   using: composite

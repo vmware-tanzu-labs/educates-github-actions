@@ -2,7 +2,7 @@
 #@ load("@ytt:overlay", "overlay")
 
 #@ def image_value(left, right):
-#@   if left == data.values.workshop.image.format(data.values.workshop.name):
+#@   if left == data.values.workshop.image.format(name=data.values.workshop.name):
 #@     return right
 #@   else:
 #@     return left
@@ -10,7 +10,7 @@
 #@ end
 
 #@ def files_value(left, right):
-#@   if left == data.values.workshop.files.format(data.values.workshop.name):
+#@   if left == data.values.workshop.files.format(name=data.values.workshop.name):
 #@     return right
 #@   else:
 #@     return left
