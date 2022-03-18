@@ -62,15 +62,15 @@ runs:
       run: |
         ytt -f ${{ inputs.path }}/${{ inputs.workshop-resource-file }} \
           -f ${{ github.action_path }}/fixup-workshop.yaml \
-          --data-value workshop.name=${REPOSITORY_OWNER} \
-          --data-value workshop.owner=${REPOSITORY_NAME} \
-          --data-value workshop.version=${REPOSITORY_TAG} \
-          --data-value workshop.registry=ghcr.io/${REPOSITORY_OWNER} \
-          --data-value workshop.image_source=${{ inputs.image-reference-source }} \
-          --data-value workshop.files_source=${{ inputs.files-reference-source }} \
-          --data-value workshop.image_target=${{ inputs.image-reference-target }} \
-          --data-value workshop.files_target=${{ inputs.files-reference-target }} \
-          --data-value workshop.tag=sha-${REPOSITORY_SHA7} > ${{ runner.temp }}/workshop.yaml
+          --data-value name=${REPOSITORY_OWNER} \
+          --data-value owner=${REPOSITORY_NAME} \
+          --data-value version=${REPOSITORY_TAG} \
+          --data-value registry=ghcr.io/${REPOSITORY_OWNER} \
+          --data-value image_source=${{ inputs.image-reference-source }} \
+          --data-value files_source=${{ inputs.files-reference-source }} \
+          --data-value image_target=${{ inputs.image-reference-target }} \
+          --data-value files_target=${{ inputs.files-reference-target }} \
+          --data-value tag=sha-${REPOSITORY_SHA7} > ${{ runner.temp }}/workshop.yaml
         ytt -f ${{ runner.temp }}/workshop.yaml -o json > ${{ runner.temp }}/workshop.json
         CONTENT_IMAGE=$(jq -r '.spec.content.image' ${{ runner.temp }}/workshop.json)
         CONTENT_FILES=$(jq -r '.spec.content.files' ${{ runner.temp }}/workshop.json)

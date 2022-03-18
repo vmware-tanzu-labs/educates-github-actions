@@ -2,7 +2,7 @@
 #@ load("@ytt:overlay", "overlay")
 
 #@ def image_value(left, right):
-#@   if left == data.values.workshop.image_source.format(name=data.values.workshop.name):
+#@   if left == data.values.image_source.format(name=data.values.name):
 #@     return right
 #@   else:
 #@     return left
@@ -10,20 +10,20 @@
 #@ end
 
 #@ def files_value(left, right):
-#@   if left == data.values.workshop.files_source.format(name=data.values.workshop.name):
+#@   if left == data.values.files_source.format(name=data.values.name):
 #@     return right
 #@   else:
 #@     return left
 #@   end
 #@ end
 
-#@overlay/match by=overlay.subset({"metadata":{"name":data.values.workshop.name}})
+#@overlay/match by=overlay.subset({"metadata":{"name":data.values.name}})
 ---
 spec:
   content:
     #@overlay/match when=1
     #@overlay/replace via=image_value
-    image: #@ data.values.image_target.format(registry=data.values.workshop.registry, owner=data.values.owner, name=data.values.workshop.name, tag=data.values.workshop.tag)
+    image: #@ data.values.image_target.format(registry=data.values.registry, owner=data.values.owner, name=data.values.name, tag=data.values.tag)
     #@overlay/match when=1
     #@overlay/replace via=files_value
-    files: #@ data.values.files_target.format(registry=data.values.workshop.registry, owner=data.values.owner, name=data.values.workshop.name, tag=data.values.workshop.tag)
+    files: #@ data.values.files_target.format(registry=data.values.registry, owner=data.values.owner, name=data.values.name, tag=data.values.tag)
