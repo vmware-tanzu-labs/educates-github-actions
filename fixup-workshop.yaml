@@ -1,0 +1,29 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@ def image_value(left, right):
+#@   if left == data.values.workshop.image.format(data.values.workshop.name):
+#@     return right
+#@   else:
+#@     return left
+#@   end
+#@ end
+
+#@ def files_value(left, right):
+#@   if left == data.values.workshop.files.format(data.values.workshop.name):
+#@     return right
+#@   else:
+#@     return left
+#@   end
+#@ end
+
+#@overlay/match by=overlay.subset({"metadata":{"name":data.values.workshop.name}})
+---
+spec:
+  content:
+    #@overlay/match when=1
+    #@overlay/replace via=image_value
+    image: #@ "{}/{}-image:{}".format(data.values.workshop.registry, data.values.workshop.name, data.values.workshop.tag)
+    #@overlay/match when=1
+    #@overlay/replace via=files_value
+    files: #@ "imgpkg+https://{}/{}-files:{}".format(data.values.workshop.registry, data.values.workshop.name, data.values.workshop.tag)
