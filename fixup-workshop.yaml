@@ -23,7 +23,7 @@ spec:
   content:
     #@overlay/match when=1
     #@overlay/replace via=image_value
-    image: #@ data.values.image_target.format(registry=data.values.registry, owner=data.values.owner, name=data.values.name, tag=data.values.tag)
+    image: #@ data.values.image_target.format(registry=data.values.registry, owner=data.values.owner, name=data.values.name, tag=data.values.tag, version=data.values.version)
     #@overlay/match when=1
     #@overlay/replace via=files_value
-    files: #@ data.values.files_target.format(registry=data.values.registry, owner=data.values.owner, name=data.values.name, tag=data.values.tag)
+    files: #@ data.values.files_target.format(registry=data.values.registry, owner=data.values.owner, name=data.values.name, tag=data.values.tag, version=data.values.version)
