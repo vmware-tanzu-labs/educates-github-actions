@@ -62,8 +62,8 @@ runs:
       run: |
         ytt -f ${{ inputs.path }}/${{ inputs.workshop-resource-file }} \
           -f ${{ github.action_path }}/fixup-workshop.yaml \
-          --data-value name=${REPOSITORY_OWNER} \
-          --data-value owner=${REPOSITORY_NAME} \
+          --data-value name=${REPOSITORY_NAME} \
+          --data-value owner=${REPOSITORY_OWNER} \
           --data-value version=${REPOSITORY_TAG} \
           --data-value registry=ghcr.io/${REPOSITORY_OWNER} \
           --data-value image_source=${{ inputs.image-reference-source }} \
