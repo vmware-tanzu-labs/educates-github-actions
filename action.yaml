@@ -28,15 +28,15 @@ inputs:
   image-reference-target:
     description: "Target image reference to replace source image reference in Workshop resource file."
     required: false
-    default: "ghcr.io/{owner}/{name}-image:{tag}"
+    default: "{registry}/{name}-image:{tag}"
   files-reference-source:
     description: "Source files reference in Workshop resource file to replace with target reference."
     required: false
-    default: "imgpkg+http://{registry}/{name}-files:latest"
+    default: "imgpkg+http://registry.eduk8s.svc.cluster.local:5001/{name}-files:latest"
   files-reference-target:
     description: "Target files reference to replace source files reference in Workshop resource file."
     required: false
-    default: "imgpkg+https://{registry}/{owner}/{name}-files:{tag}"
+    default: "imgpkg+https://{registry}/{name}-files:{tag}"
 
 runs:
   using: composite
