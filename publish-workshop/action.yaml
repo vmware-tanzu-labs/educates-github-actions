@@ -10,31 +10,31 @@ inputs:
     required: false
     default: "."
   workshop-resource-file:
-    description: "Relative path under workshop directory to Workshop resource file."
+    description: "Relative path under workshop directory to the Workshop resource file."
     required: false
     default: "resources/workshop.yaml"
   training-portal-resource-file:
-    description: "Relative path under workshop directory to TrainingPortal resource file."
+    description: "Relative path under workshop directory to the TrainingPortal resource file."
     required: false
     default: "resources/training-portal.yaml"
   workshop-image-docker-file:
-    description: "Path under workshop directory to Dockerfile for custom workshop image."
+    description: "Path under workshop directory to the Dockerfile for the custom workshop image."
     required: false
     default: "Dockerfile"
   image-reference-source:
-    description: "Source image reference in Workshop resource file to replace with target reference."
+    description: "Source image reference in the Workshop resource file to replace with target reference."
     required: false
     default: "registry.eduk8s.svc.cluster.local:5001/{name}-image:latest"
   image-reference-target:
-    description: "Target image reference to replace source image reference in Workshop resource file."
+    description: "Target reference to replace source image reference in the Workshop resource file."
     required: false
     default: "{registry}/{name}-image:{tag}"
   files-reference-source:
-    description: "Source files reference in Workshop resource file to replace with target reference."
+    description: "Source files reference in the Workshop resource file to replace with target reference."
     required: false
     default: "imgpkg+http://registry.eduk8s.svc.cluster.local:5001/{name}-files:latest"
   files-reference-target:
-    description: "Target files reference to replace source files reference in Workshop resource file."
+    description: "Target reference to replace source files reference in the Workshop resource file."
     required: false
     default: "imgpkg+https://{registry}/{name}-files:{tag}"
 
