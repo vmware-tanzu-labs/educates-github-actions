@@ -113,7 +113,7 @@ runs:
         GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
       with:
         tag_name: ${{env.REPOSITORY_TAG}}
-        release_name: ${{env.REPOSITORY_NAME}}-${{env.REPOSITORY_TAG}}
+        release_name: "${{env.REPOSITORY_NAME}}:${{env.REPOSITORY_TAG}}"
         draft: false
         prerelease: false
 
