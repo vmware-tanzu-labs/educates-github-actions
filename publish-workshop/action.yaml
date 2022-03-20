@@ -52,7 +52,6 @@ runs:
         REPOSITORY_NAME=${{github.event.repository.name}}
         echo "REPOSITORY_NAME=${REPOSITORY_NAME,,}" >>${GITHUB_ENV}
         echo "REPOSITORY_OWNER=${GITHUB_REPOSITORY_OWNER,,}" >>${GITHUB_ENV}
-        echo "REPOSITORY_SHA7=${GITHUB_SHA::7}" >>${GITHUB_ENV}
         echo "REPOSITORY_TAG=${GITHUB_REF#refs/tags/}" >>${GITHUB_ENV}
         echo "GITHUB_TOKEN=${{ inputs.token }}" >>${GITHUB_ENV}
 
@@ -70,14 +69,14 @@ runs:
           --data-value files_source=${{ inputs.files-reference-source }} \
           --data-value image_target=${{ inputs.image-reference-target }} \
           --data-value files_target=${{ inputs.files-reference-target }} \
-          --data-value tag=sha-${REPOSITORY_SHA7} > ${{ runner.temp }}/workshop.yaml
+          --data-value tag=${REPOSITORY_TAG} > ${{ runner.temp }}/workshop.yaml
         ytt -f ${{ runner.temp }}/workshop.yaml -o json > ${{ runner.temp }}/workshop.json
         CONTENT_IMAGE=$(jq -r '.spec.content.image' ${{ runner.temp }}/workshop.json)
         CONTENT_FILES=$(jq -r '.spec.content.files' ${{ runner.temp }}/workshop.json)
-        if [ "$CONTENT_IMAGE" == "ghcr.io/${REPOSITORY_OWNER}/${REPOSITORY_NAME}-image:sha-${REPOSITORY_SHA7}" ]; then
+        if [ "$CONTENT_IMAGE" == "ghcr.io/${REPOSITORY_OWNER}/${REPOSITORY_NAME}-image:${REPOSITORY_TAG}" ]; then
           echo "::set-output name=build_image::true"
         fi
-        if [ "$CONTENT_FILES" == "imgpkg+https://ghcr.io/${REPOSITORY_OWNER}/${REPOSITORY_NAME}-files:sha-${REPOSITORY_SHA7}" ]; then
+        if [ "$CONTENT_FILES" == "imgpkg+https://ghcr.io/${REPOSITORY_OWNER}/${REPOSITORY_NAME}-files:${REPOSITORY_TAG}" ]; then
           echo "::set-output name=build_files::true"
         fi
 
@@ -86,7 +85,7 @@ runs:
       if: steps.process_workshop.outputs.build_files == 'true'
       run: |
         imgpkg --debug push --file ${{ inputs.path }} \
-          --image ghcr.io/${REPOSITORY_OWNER}/${REPOSITORY_NAME}-files:sha-${REPOSITORY_SHA7} \
+          --image ghcr.io/${REPOSITORY_OWNER}/${REPOSITORY_NAME}-files:${REPOSITORY_TAG} \
           --registry-username=${{github.actor}} \
           --registry-password=${{env.GITHUB_TOKEN}}
 
@@ -104,7 +103,7 @@ runs:
       with:
         context: ${{ inputs.path }}
         file: ${{ inputs.workshop-image-docker-file }}
-        tags: ghcr.io/${{env.REPOSITORY_OWNER}}/${{env.REPOSITORY_NAME}}-image:sha-${{env.REPOSITORY_SHA7}}
+        tags: ghcr.io/${{env.REPOSITORY_OWNER}}/${{env.REPOSITORY_NAME}}-image:${{env.REPOSITORY_TAG}}
         push: true
 
     - name: Create release

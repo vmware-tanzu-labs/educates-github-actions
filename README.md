@@ -1,7 +1,7 @@
 Educates GitHub Actions
 =======================
 
-This repository contains a collection of GitHub Actions supporting development
+This repository contains a collection of GitHub actions supporting development
 and use of Educates, including user created workshop content for Educates.
 
 The GitHub actions included here are:

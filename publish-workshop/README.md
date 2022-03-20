@@ -11,6 +11,9 @@ This GitHub action supports the following for an Educates workshop:
 * Creating a release against the GitHub repository and attach as assets
   Kubernetes resource files for deploying the workshop to Educates.
 
+The GitHub action requires that it be triggered in response to a Git tag being
+applied to the GitHub repository.
+
 GitHub Workflow
 ---------------
 
@@ -129,15 +132,14 @@ GitHub action are as follows:
 | `workshop-image-docker-file`    | False    | String   | Path under workshop directory to the `Dockerfile` for custom workshop image. Defaults to "`Dockerfile`". |
 | `workshop-resource-file`        | False    | String   | Relative path under workshop directory to the `Workshop` resource file. Defaults to "`resources/workshop.yaml`". |
 
- When overriding the source reference for `image` and `files`, the `{name}` variable reference can be used. When overriding the target reference for `image` and `files`, the `{registry}`, `{owner}`, `{name}`, `{tag}` and `{version}` variable references can be used. The meaning of these variables references are as follows:
+ When overriding the source reference for `image` and `files`, the `{name}` variable reference can be used. When overriding the target reference for `image` and `files`, the `{registry}`, `{owner}`, `{name}` and `{tag}` variable references can be used. The meaning of these variables references are as follows:
  
  | Variable     | Description |
  |--------------|-------------|
  | `{name}`     | The name of the GitHub repository (forced to lowercase). |
  | `{owner}`    | The GitHub repository account owner (forced to lowercase). |
  | `{registry}` | The expansion of `ghcr.io/{owner}`. |
- | `{tag}`      | An image tag of the form `sha-{sha7}`, where `{sha7}` is the short hash of the Git commit the action is run against. |
- | `{version}` | The Git tag applied to the commit the action is run against which triggered the action. |
+ | `{tag}`      | The Git tag applied to the commit the action is run against which triggered the action. |
 
 Files References
 ----------------
@@ -157,7 +159,7 @@ workshop content direct from the GitHub repository, use:
         uses: vmware-tanzu-labs/educates-github-actions/publish-workshop@v1
         with:
           token: ${{secrets.GITHUB_TOKEN}}
-          files-reference-target: github.com/{owner}/{name}?ref={version}
+          files-reference-target: github.com/{owner}/{name}?ref={tag}
 ```
 
 To override the target reference for the workshop content files to pull the
@@ -169,5 +171,5 @@ server, use:
         uses: vmware-tanzu-labs/educates-github-actions/publish-workshop@v1
         with:
           token: ${{secrets.GITHUB_TOKEN}}
-          files-reference-target: https://github.com/{owner}/{name}/archive/refs/tags/{version}.tar.gz
+          files-reference-target: https://github.com/{owner}/{name}/archive/refs/tags/{tag}.tar.gz
 ```
