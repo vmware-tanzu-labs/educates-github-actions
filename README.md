@@ -2,11 +2,11 @@ Educates GitHub Actions
 =======================
 
 This repository contains a collection of GitHub Actions supporting development
-and use of Educates, including user created workshop created for Educates.
+and use of Educates, including user created workshop content for Educates.
 
 The GitHub actions included here are:
 
-* [Publish Workshop](public-workshop/README.md) - Publishes workshops to GitHub
+* [Publish Workshop](publish-workshop/README.md) - Publishes workshops to GitHub
   container registry and creates a release with Kubernetes resource definitions
   for deploying the workshop as assets.
 
