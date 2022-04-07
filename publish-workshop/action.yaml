@@ -24,7 +24,7 @@ inputs:
   image-reference-source:
     description: "Source image reference in the Workshop resource file to replace with target reference."
     required: false
-    default: "registry.eduk8s.svc.cluster.local:5001/{name}-image:latest"
+    default: "registry.default.svc.cluster.local:5001/{name}-image:latest"
   image-reference-target:
     description: "Target reference to replace source image reference in the Workshop resource file."
     required: false
@@ -32,7 +32,7 @@ inputs:
   files-reference-source:
     description: "Source files reference in the Workshop resource file to replace with target reference."
     required: false
-    default: "imgpkg+http://registry.eduk8s.svc.cluster.local:5001/{name}-files:latest"
+    default: "imgpkg+http://registry.default.svc.cluster.local:5001/{name}-files:latest"
   files-reference-target:
     description: "Target reference to replace source files reference in the Workshop resource file."
     required: false

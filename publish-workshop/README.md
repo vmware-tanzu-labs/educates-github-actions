@@ -43,7 +43,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Create release
-        uses: vmware-tanzu-labs/educates-github-actions/publish-workshop@v1
+        uses: vmware-tanzu-labs/educates-github-actions/publish-workshop@v2
         with:
           token: ${{secrets.GITHUB_TOKEN}}
 ```
@@ -66,7 +66,7 @@ metadata:
   name: {name}
 spec:
   content:
-    files: imgpkg+http://registry.eduk8s.svc.cluster.local:5001/{name}-files:latest
+    files: imgpkg+http://registry.default.svc.cluster.local:5001/{name}-files:latest
 ```
 
 A custom workshop base image for the workshop will be built and published where
@@ -80,7 +80,7 @@ metadata:
   name: {name}
 spec:
   content:
-    image: registry.eduk8s.svc.cluster.local:5001/{name}-image:latest
+    image: registry.default.svc.cluster.local:5001/{name}-image:latest
 ```
 
 Both an OCI image artefact with workshop content files, and a custom workshop
@@ -95,8 +95,8 @@ metadata:
   name: {name}
 spec:
   content:
-    image: registry.eduk8s.svc.cluster.local:5001/{name}-image:latest
-    files: imgpkg+http://registry.eduk8s.svc.cluster.local:5001/{name}-files:latest
+    image: registry.default.svc.cluster.local:5001/{name}-image:latest
+    files: imgpkg+http://registry.default.svc.cluster.local:5001/{name}-files:latest
 ```
 
 The text string `{name}` appearing in the `metadata.name`, `spec.content.image`
@@ -122,9 +122,9 @@ GitHub action are as follows:
 
 | Name                            | Required | Type     | Description                        |
 |---------------------------------|----------|----------|------------------------------------|
-| `files-reference-source`        | False    | String   | Source `files` reference in the `Workshop` resource file to replace with target reference. Defaults to "`imgpkg+http://registry.eduk8s.svc.cluster.local:5001/{name}-files:latest`". |
+| `files-reference-source`        | False    | String   | Source `files` reference in the `Workshop` resource file to replace with target reference. Defaults to "`imgpkg+http://registry.default.svc.cluster.local:5001/{name}-files:latest`". |
 | `files-reference-target`        | False    | String   | Target reference to replace source `files` reference in the `Workshop` resource file. Defaults to "`imgpkg+https://{registry}/{name}-files:{tag}`". |
-| `image-reference-source`        | False    | String   | Source `image` reference in the `Workshop` resource file to replace with target reference. Defaults to "`registry.eduk8s.svc.cluster.local:5001/{name}-image:latest`". |
+| `image-reference-source`        | False    | String   | Source `image` reference in the `Workshop` resource file to replace with target reference. Defaults to "`registry.default.svc.cluster.local:5001/{name}-image:latest`". |
 | `image-reference-target`        | False    | String   | Target reference to replace source image reference in the `Workshop` resource file. Defaults to "`{registry}/{name}-image:{tag}`". |
 | `path`                          | False    | String   | Relative directory path under `$GITHUB_WORKSPACE` to workshop files. Defaults to "`.`". |
 | `token`                         | True     | String   | GitHub access token. Must be set to `${{secrets.GITHUB_TOKEN}}` or appropriate personal access token variable reference. |
@@ -156,7 +156,7 @@ workshop content direct from the GitHub repository, use:
 
 ```
       - name: Create release
-        uses: vmware-tanzu-labs/educates-github-actions/publish-workshop@v1
+        uses: vmware-tanzu-labs/educates-github-actions/publish-workshop@v2
         with:
           token: ${{secrets.GITHUB_TOKEN}}
           files-reference-target: github.com/{owner}/{name}?ref={tag}
@@ -168,7 +168,7 @@ server, use:
 
 ```
       - name: Create release
-        uses: vmware-tanzu-labs/educates-github-actions/publish-workshop@v1
+        uses: vmware-tanzu-labs/educates-github-actions/publish-workshop@v2
         with:
           token: ${{secrets.GITHUB_TOKEN}}
           files-reference-target: https://github.com/{owner}/{name}/archive/refs/tags/{tag}.tar.gz
