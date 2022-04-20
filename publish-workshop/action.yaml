@@ -58,7 +58,7 @@ runs:
           --data-value owner=${REPOSITORY_OWNER} \
           --data-value version=${REPOSITORY_TAG} \
           --data-value registry=ghcr.io/${REPOSITORY_OWNER} \
-          --data-value workshop_resource_file='${{ inputs.workshop-resource-file }}' \
+          --data-value workshop_resource_file=`basename ${{ inputs.workshop-resource-file }}` \
           --data-value image_regular_expression='${{ inputs.image-regular-expression }}' \
           --data-value image_replacement_string='${{ inputs.image-replacement-string }}' \
           --data-value tag=${REPOSITORY_TAG} > ${{ runner.temp }}/workshop.yaml
