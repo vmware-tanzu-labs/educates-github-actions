@@ -8,11 +8,11 @@ inputs:
   path:
     description: "Relative directory path under $GITHUB_WORKSPACE to workshop files."
     required: false
-    default: "."
+    default: '.'
   workshop-resource-file:
     description: "Relative path under workshop directory to the Workshop resource file."
     required: false
-    default: "resources/workshop.yaml"
+    default: 'resources/workshop.yaml'
   training-portal-resource-file:
     description: "Relative path under workshop directory to the TrainingPortal resource file."
     required: false
@@ -20,23 +20,15 @@ inputs:
   workshop-image-docker-file:
     description: "Path under workshop directory to the Dockerfile for the custom workshop image."
     required: false
-    default: "Dockerfile"
-  image-reference-source:
-    description: "Source image reference in the Workshop resource file to replace with target reference."
+    default: 'Dockerfile'
+  image-regular-expression:
+    description: "Regular expression to match any image references in Workshop resource file."
     required: false
-    default: "registry.default.svc.cluster.local:5001/{name}-image:latest"
-  image-reference-target:
-    description: "Target reference to replace source image reference in the Workshop resource file."
+    default: '$\(image_repository\)/(.+):latest'
+  image-replacement-string:
+    description: "Replacement string for any matched image references in the Workshop resource file."
     required: false
-    default: "{registry}/{name}-image:{tag}"
-  files-reference-source:
-    description: "Source files reference in the Workshop resource file to replace with target reference."
-    required: false
-    default: "imgpkg+http://registry.default.svc.cluster.local:5001/{name}-files:latest"
-  files-reference-target:
-    description: "Target reference to replace source files reference in the Workshop resource file."
-    required: false
-    default: "imgpkg+https://{registry}/{name}-files:{tag}"
+    default: '{registry}/$1:{tag}'
 
 runs:
   using: composite
@@ -60,19 +52,19 @@ runs:
       id: process_workshop
       run: |
         ytt -f ${{ inputs.path }}/${{ inputs.workshop-resource-file }} \
+          --file-mark "`basename ${{ inputs.workshop-resource-file }}`:type=data" \
           -f ${{ github.action_path }}/fixup-workshop.yaml \
           --data-value name=${REPOSITORY_NAME} \
           --data-value owner=${REPOSITORY_OWNER} \
           --data-value version=${REPOSITORY_TAG} \
           --data-value registry=ghcr.io/${REPOSITORY_OWNER} \
-          --data-value image_source=${{ inputs.image-reference-source }} \
-          --data-value files_source=${{ inputs.files-reference-source }} \
-          --data-value image_target=${{ inputs.image-reference-target }} \
-          --data-value files_target=${{ inputs.files-reference-target }} \
+          --data-value workshop_resource_file=${{ inputs.workshop-resource-file }} \
+          --data-value image_regular_expression=${{ inputs.image-regular-expression }} \
+          --data-value image_replacement_string=${{ inputs.image-replacement-string }} \
           --data-value tag=${REPOSITORY_TAG} > ${{ runner.temp }}/workshop.yaml
         ytt -f ${{ runner.temp }}/workshop.yaml -o json > ${{ runner.temp }}/workshop.json
-        CONTENT_IMAGE=$(jq -r '.spec.content.image' ${{ runner.temp }}/workshop.json)
-        CONTENT_FILES=$(jq -r '.spec.content.files' ${{ runner.temp }}/workshop.json)
+        CONTENT_IMAGE=$(jq -r '.spec.workshop.image' ${{ runner.temp }}/workshop.json)
+        CONTENT_FILES=$(jq -r '[.spec.workshop.files[].image.url][0]' ${{ runner.temp }}/workshop.json)
         if [ "$CONTENT_IMAGE" == "ghcr.io/${REPOSITORY_OWNER}/${REPOSITORY_NAME}-image:${REPOSITORY_TAG}" ]; then
           echo "::set-output name=build_image::true"
         fi

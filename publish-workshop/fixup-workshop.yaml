@@ -1,29 +1,18 @@
 #@ load("@ytt:data", "data")
-#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:yaml", "yaml")
+#@ load("@ytt:regexp", "regexp")
+#@ load("@ytt:template", "template")
 
-#@ def image_value(left, right):
-#@   if left == data.values.image_source.format(name=data.values.name):
-#@     return right
+#@ def fixup_resource(obj):
+#@   if type(obj) == "string":
+#@     return regexp.replace(data.values.image_regular_expression, obj, data.values.image_replacement_string).format(**data.values)
+#@   elif type(obj) == "dict":
+#@     return {k: fixup_resource(v) for k, v in obj.items()}
+#@   elif type(obj) == "list":
+#@     return [fixup_resource(v) for v in obj]
 #@   else:
-#@     return left
+#@     return obj
 #@   end
 #@ end
 
-#@ def files_value(left, right):
-#@   if left == data.values.files_source.format(name=data.values.name):
-#@     return right
-#@   else:
-#@     return left
-#@   end
-#@ end
-
-#@overlay/match by=overlay.subset({"metadata":{"name":data.values.name}})
----
-spec:
-  content:
-    #@overlay/match when=1
-    #@overlay/replace via=image_value
-    image: #@ data.values.image_target.format(registry=data.values.registry, owner=data.values.owner, name=data.values.name, tag=data.values.tag)
-    #@overlay/match when=1
-    #@overlay/replace via=files_value
-    files: #@ data.values.files_target.format(registry=data.values.registry, owner=data.values.owner, name=data.values.name, tag=data.values.tag)
+_: #@ template.replace(fixup_resource(yaml.decode(data.read(data.values.workshop_resource_file))))
