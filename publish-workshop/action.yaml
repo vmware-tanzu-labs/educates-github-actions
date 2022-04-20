@@ -24,7 +24,7 @@ inputs:
   image-regular-expression:
     description: "Regular expression to match any image references in Workshop resource file."
     required: false
-    default: '$\(image_repository\)/(.+):latest'
+    default: '\$\(image_repository\)/(.+):latest'
   image-replacement-string:
     description: "Replacement string for any matched image references in the Workshop resource file."
     required: false
@@ -68,7 +68,7 @@ runs:
         if [ "$CONTENT_IMAGE" == "ghcr.io/${REPOSITORY_OWNER}/${REPOSITORY_NAME}-image:${REPOSITORY_TAG}" ]; then
           echo "::set-output name=build_image::true"
         fi
-        if [ "$CONTENT_FILES" == "imgpkg+https://ghcr.io/${REPOSITORY_OWNER}/${REPOSITORY_NAME}-files:${REPOSITORY_TAG}" ]; then
+        if [ "$CONTENT_FILES" == "ghcr.io/${REPOSITORY_OWNER}/${REPOSITORY_NAME}-files:${REPOSITORY_TAG}" ]; then
           echo "::set-output name=build_files::true"
         fi
 
