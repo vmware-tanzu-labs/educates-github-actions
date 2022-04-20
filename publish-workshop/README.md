@@ -43,7 +43,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Create release
-        uses: vmware-tanzu-labs/educates-github-actions/publish-workshop@v2
+        uses: vmware-tanzu-labs/educates-github-actions/publish-workshop@v3
         with:
           token: ${{secrets.GITHUB_TOKEN}}
 ```
@@ -56,36 +56,38 @@ and published is dictated by settings contained in the Educates `Workshop`
 resource definition found in the `resources/workshop.yaml` file.
 
 An OCI image artefact with workshop content files will be published where the
-`Workshop` resource definition contained `spec.content.files` set in the
+`Workshop` resource definition contained `spec.workshop.files` set in the
 following form:
 
 ```
-apiVersion: training.eduk8s.io/v1alpha2
+apiVersion: training.educates.dev/v1beta1
 kind: Workshop
 metadata:
   name: {name}
 spec:
-  content:
-    files: imgpkg+http://registry.default.svc.cluster.local:5001/{name}-files:latest
+  workshop:
+    files:
+    - image:
+        url: $(image_repository)/{name}-files:latest
 ```
 
 A custom workshop base image for the workshop will be built and published where
-the `Workshop` resource definition contained `spec.content.images` set in the
+the `Workshop` resource definition contained `spec.workshop.image` set in the
 following form:
 
 ```
-apiVersion: training.eduk8s.io/v1alpha2
+apiVersion: training.educates.dev/v1beta1
 kind: Workshop
 metadata:
   name: {name}
 spec:
-  content:
-    image: registry.default.svc.cluster.local:5001/{name}-image:latest
+  workshop:
+    image: $(image_repository)/{name}-image:latest
 ```
 
 Both an OCI image artefact with workshop content files, and a custom workshop
 base image for the workshop will be built and published where the `Workshop`
-resource definition contained `spec.content.images` and `spec.content.files`
+resource definition contained `spec.workshop.image` and `spec.workshop.files`
 set in the following form:
 
 ```
@@ -94,25 +96,28 @@ kind: Workshop
 metadata:
   name: {name}
 spec:
-  content:
-    image: registry.default.svc.cluster.local:5001/{name}-image:latest
-    files: imgpkg+http://registry.default.svc.cluster.local:5001/{name}-files:latest
+  workshop:
+    image: $(image_repository)/{name}-image:latest
+    files:
+    - image:
+        url: $(image_repository)/{name}-files:latest
 ```
 
-The text string `{name}` appearing in the `metadata.name`, `spec.content.image`
-and `spec.content.files` properties should be, and must match, the name of the
+The text string `{name}` appearing in the `metadata.name`, `spec.workshop.image`
+and `spec.workshop.files` properties should be, and must match, the name of the
 GitHub repository.
 
-The values of the `spec.content.image` and `spec.content.files` properties as a
-whole which will trigger creation and publishing of the OCI image artefact and
-custom workshop base image, as well as the location of the file containing the
-`Workshop` resource definition can be customized using the action configuration.
+The values of the `spec.workshop.image` and `spec.workshop.files[].image.url`
+properties as a whole which will trigger creation and publishing of the OCI
+image artefact and custom workshop base image, as well as the location of the
+file containing the `Workshop` resource definition can be customized using the
+action configuration.
 
 When an OCI image artefact with workshop content files, or a custom workshop
 base image for the workshop are built and published to GitHub container
-registry, the `image` and `files` references in the `Workshop` resource
-definition will be rewritten to be the target locations when the `Workshop`
-resource definition is attached as asset to the release.
+registry, the `spec.workshop.image` and `spec.workshop.files` references in the
+`Workshop` resource definition will be rewritten to be the target locations when
+the `Workshop` resource definition is attached as asset to the release.
 
 Action Configuration
 --------------------
@@ -122,17 +127,15 @@ GitHub action are as follows:
 
 | Name                            | Required | Type     | Description                        |
 |---------------------------------|----------|----------|------------------------------------|
-| `files-reference-source`        | False    | String   | Source `files` reference in the `Workshop` resource file to replace with target reference. Defaults to "`imgpkg+http://registry.default.svc.cluster.local:5001/{name}-files:latest`". |
-| `files-reference-target`        | False    | String   | Target reference to replace source `files` reference in the `Workshop` resource file. Defaults to "`imgpkg+https://{registry}/{name}-files:{tag}`". |
-| `image-reference-source`        | False    | String   | Source `image` reference in the `Workshop` resource file to replace with target reference. Defaults to "`registry.default.svc.cluster.local:5001/{name}-image:latest`". |
-| `image-reference-target`        | False    | String   | Target reference to replace source image reference in the `Workshop` resource file. Defaults to "`{registry}/{name}-image:{tag}`". |
+| `image-regular-expression`      | False    | String   | Regular expression to match any image references in Workshop resource file. Defaults to `'\$\(image_repository\)/(.+):latest'`. |
+| `image-replacement-string`      | False    | String   | Target reference to replace source image reference in the `Workshop` resource file. Defaults to `'{registry}/$1:{tag}'`. |
 | `path`                          | False    | String   | Relative directory path under `$GITHUB_WORKSPACE` to workshop files. Defaults to "`.`". |
 | `token`                         | True     | String   | GitHub access token. Must be set to `${{secrets.GITHUB_TOKEN}}` or appropriate personal access token variable reference. |
-| `training-portal-resource-file` | False    | String   | Relative path under workshop directory to the `TrainingPortal` resource file. Defaults to "`resources/training-portal.yaml`". |
+| `trainingportal-resource-file`  | False    | String   | Relative path under workshop directory to the `TrainingPortal` resource file. Defaults to "`resources/trainingportal.yaml`". |
 | `workshop-image-docker-file`    | False    | String   | Path under workshop directory to the `Dockerfile` for custom workshop image. Defaults to "`Dockerfile`". |
 | `workshop-resource-file`        | False    | String   | Relative path under workshop directory to the `Workshop` resource file. Defaults to "`resources/workshop.yaml`". |
 
- When overriding the source reference for `image` and `files`, the `{name}` variable reference can be used. When overriding the target reference for `image` and `files`, the `{registry}`, `{owner}`, `{name}` and `{tag}` variable references can be used. The meaning of these variables references are as follows:
+ When specifying the replacement string the special `{name}`, `{registry}`, `{owner}`, `{name}` and `{tag}` variable references can be used. The meaning of these variables references are as follows:
  
  | Variable     | Description |
  |--------------|-------------|
@@ -140,36 +143,3 @@ GitHub action are as follows:
  | `{owner}`    | The GitHub repository account owner (forced to lowercase). |
  | `{registry}` | The expansion of `ghcr.io/{owner}`. |
  | `{tag}`      | The Git tag applied to the commit the action is run against which triggered the action. |
-
-Files References
-----------------
-
-The location from which workshop content files are sourced when a workshop is
-deployed under Educates is dictated by the `spec.content.files` property of the
-`Workshop` resource definition. By default an OCI artefact is built and pushed
-to GitHub container registry by this GitHub action and the `Workshop` definition is
-rewritten when added as an asset to the release, to reference the OCI artefact
-stored in GitHub container registry.
-
-To override the target reference for the workshop content files to pull the
-workshop content direct from the GitHub repository, use:
-
-```
-      - name: Create release
-        uses: vmware-tanzu-labs/educates-github-actions/publish-workshop@v2
-        with:
-          token: ${{secrets.GITHUB_TOKEN}}
-          files-reference-target: github.com/{owner}/{name}?ref={tag}
-```
-
-To override the target reference for the workshop content files to pull the
-workshop content direct from a web server, in this case for the GitHub download
-server, use:
-
-```
-      - name: Create release
-        uses: vmware-tanzu-labs/educates-github-actions/publish-workshop@v2
-        with:
-          token: ${{secrets.GITHUB_TOKEN}}
-          files-reference-target: https://github.com/{owner}/{name}/archive/refs/tags/{tag}.tar.gz
-```
