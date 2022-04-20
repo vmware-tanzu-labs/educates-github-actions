@@ -58,9 +58,9 @@ runs:
           --data-value owner=${REPOSITORY_OWNER} \
           --data-value version=${REPOSITORY_TAG} \
           --data-value registry=ghcr.io/${REPOSITORY_OWNER} \
-          --data-value workshop_resource_file=${{ inputs.workshop-resource-file }} \
-          --data-value image_regular_expression=${{ inputs.image-regular-expression }} \
-          --data-value image_replacement_string=${{ inputs.image-replacement-string }} \
+          --data-value workshop_resource_file='${{ inputs.workshop-resource-file }}' \
+          --data-value image_regular_expression='${{ inputs.image-regular-expression }}' \
+          --data-value image_replacement_string='${{ inputs.image-replacement-string }}' \
           --data-value tag=${REPOSITORY_TAG} > ${{ runner.temp }}/workshop.yaml
         ytt -f ${{ runner.temp }}/workshop.yaml -o json > ${{ runner.temp }}/workshop.json
         CONTENT_IMAGE=$(jq -r '.spec.workshop.image' ${{ runner.temp }}/workshop.json)
