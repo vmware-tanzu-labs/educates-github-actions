@@ -13,10 +13,10 @@ inputs:
     description: "Relative path under workshop directory to the Workshop resource file."
     required: false
     default: 'resources/workshop.yaml'
-  training-portal-resource-file:
+  trainingportal-resource-file:
     description: "Relative path under workshop directory to the TrainingPortal resource file."
     required: false
-    default: "resources/training-portal.yaml"
+    default: 'resources/trainingportal.yaml'
   workshop-image-docker-file:
     description: "Path under workshop directory to the Dockerfile for the custom workshop image."
     required: false
@@ -119,12 +119,12 @@ runs:
         asset_name: workshop.yaml
         asset_content_type: text/yaml
 
-    - name: Upload training-portal.yaml
+    - name: Upload trainingportal.yaml
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ${{ inputs.path }}/resources/training-portal.yaml
-        asset_name: training-portal.yaml
+        asset_path: ${{ inputs.path }}/${{ inputs.trainingportal-resource-file }}
+        asset_name: trainingportal.yaml
         asset_content_type: text/yaml
