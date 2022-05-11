@@ -108,6 +108,16 @@ runs:
         asset_name: workshops.yaml
         asset_content_type: text/yaml
 
+    - name: Upload workshops.tar.gz
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{env.GITHUB_TOKEN}}
+      with:
+        upload_url: ${{steps.create_release.outputs.upload_url}}
+        asset_path: ${{runner.temp}}/workshops.tar.gz
+        asset_name: workshops.tar.gz
+        asset_content_type: application/gzip
+
     - name: Upload trainingportal.yaml
       uses: actions/upload-release-asset@v1
       env:

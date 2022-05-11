@@ -62,9 +62,11 @@ else
     process_workshop_file $file > $OUTPUT_DIRECTORY/workshops/$workshop.yaml
 fi
 
-# Merge all the workshop files into one file.
+# Merge all the workshop files into one file and create archive as well.
 
 ytt -f $OUTPUT_DIRECTORY/workshops > $OUTPUT_DIRECTORY/workshops.yaml
+
+tar -z -C $OUTPUT_DIRECTORY -cvf $OUTPUT_DIRECTORY/workshops.tar.gz workshops
 
 # Determine if we need to build an OCI image artefact for workshop content or a
 # container image for a custom workshop base image. When there are multiple
