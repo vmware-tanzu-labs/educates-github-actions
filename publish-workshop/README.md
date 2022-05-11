@@ -11,6 +11,15 @@ This GitHub action supports the following for an Educates workshop:
 * Creating a release against the GitHub repository and attach as assets
   Kubernetes resource files for deploying the workshop to Educates.
 
+Both a single workshop, or multiple workshops are supported. In the case of
+multiple workshops, each named workshop needs to be in a separate subdirectory
+of the `workshops` subdirectory. For the case of multiple workshops there is
+however still only one OCI image artefact created which includes content for all
+workshops in the repository. The workshop definitions therefore need to
+selective filter only the files from the OCI image artefact for that workshop.
+Similarly, only one custom workshop base image is supported, where the
+`Dockerfile` needs to exist in the root of the repository or designated path.
+
 The GitHub action requires that it be triggered in response to a Git tag being
 applied to the GitHub repository.
 
@@ -43,7 +52,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Create release
-        uses: vmware-tanzu-labs/educates-github-actions/publish-workshop@v3
+        uses: vmware-tanzu-labs/educates-github-actions/publish-workshop@v4
         with:
           token: ${{secrets.GITHUB_TOKEN}}
 ```
@@ -104,8 +113,8 @@ spec:
 ```
 
 The text string `{name}` appearing in the `metadata.name`, `spec.workshop.image`
-and `spec.workshop.files` properties should be, and must match, the name of the
-GitHub repository.
+and `spec.workshop.files` properties should be the same, and must match the name
+of the GitHub repository.
 
 The values of the `spec.workshop.image` and `spec.workshop.files[].image.url`
 properties as a whole which will trigger creation and publishing of the OCI
@@ -118,6 +127,37 @@ base image for the workshop are built and published to GitHub container
 registry, the `spec.workshop.image` and `spec.workshop.files` references in the
 `Workshop` resource definition will be rewritten to be the target locations when
 the `Workshop` resource definition is attached as asset to the release.
+
+Multiple Workshops
+------------------
+
+In the case of multiple workshops you must have a `workshops` subdirectory.
+Under that directory there needs to be separate subdirectories for each
+workshop, with name matching the name of the workshop in the workshop
+definition.
+
+The format of the respective workshop definitions for the workshop content
+files should be:
+
+```
+apiVersion: training.educates.dev/v1beta1
+kind: Workshop
+metadata:
+  name: {name}
+spec:
+  workshop:
+    files:
+    - image:
+        url: $(image_repository)/{repository}/{name}-files:latest
+      includePaths:
+      - /workshops/{name}/workshop/**
+      newRootPath: workshops/{name}
+```
+
+The text string `{name}` appearing in the `metadata.name` and
+`spec.workshop.image` properties should be the same, and must match the name of
+the workshop subdirectory under the `workshops` directory. The text string
+`{repository}` must match the name of the GitHub repository.
 
 Action Configuration
 --------------------
