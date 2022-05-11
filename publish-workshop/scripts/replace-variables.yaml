@@ -1,0 +1,10 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:template", "template")
+
+#@ load("core-functions.star", "fixup_workshop_file")
+
+#@ filename = data.values.workshop.file
+#@ pattern = data.values.image.pattern
+#@ replacement = data.values.image.replacement
+
+_: #@ template.replace(fixup_workshop_file(filename, pattern, replacement))

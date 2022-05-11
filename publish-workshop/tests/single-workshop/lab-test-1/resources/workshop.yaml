@@ -1,0 +1,9 @@
+apiVersion: training.educates.dev/v1beta1
+kind: Workshop
+metadata:
+  name: lab-test-1
+spec:
+  workshop:
+    files:
+    - image:
+        url: $(image_repository)/lab-test-1-files:latest

@@ -38,45 +38,34 @@ runs:
       shell: bash
       run: curl -L https://carvel.dev/install.sh | bash
 
-    - name: Calculate variables
+    - name: Calculate release variables
       shell: bash
       run: |
         REPOSITORY_NAME=${{github.event.repository.name}}
         echo "REPOSITORY_NAME=${REPOSITORY_NAME,,}" >>${GITHUB_ENV}
         echo "REPOSITORY_OWNER=${GITHUB_REPOSITORY_OWNER,,}" >>${GITHUB_ENV}
         echo "REPOSITORY_TAG=${GITHUB_REF#refs/tags/}" >>${GITHUB_ENV}
-        echo "GITHUB_TOKEN=${{ inputs.token }}" >>${GITHUB_ENV}
+        echo "GITHUB_TOKEN=${{inputs.token}}" >>${GITHUB_ENV}
 
-    - name: Process workshop.yaml
+    - name: Process workshop files
       shell: bash
-      id: process_workshop
+      id: process_workshops
       run: |
-        ytt -f ${{ inputs.path }}/${{ inputs.workshop-resource-file }} \
-          --file-mark "`basename ${{ inputs.workshop-resource-file }}`:type=data" \
-          -f ${{ github.action_path }}/fixup-workshop.yaml \
-          --data-value name=${REPOSITORY_NAME} \
-          --data-value owner=${REPOSITORY_OWNER} \
-          --data-value version=${REPOSITORY_TAG} \
-          --data-value registry=ghcr.io/${REPOSITORY_OWNER} \
-          --data-value workshop_resource_file=`basename ${{ inputs.workshop-resource-file }}` \
-          --data-value image_regular_expression='${{ inputs.image-regular-expression }}' \
-          --data-value image_replacement_string='${{ inputs.image-replacement-string }}' \
-          --data-value tag=${REPOSITORY_TAG} > ${{ runner.temp }}/workshop.yaml
-        ytt -f ${{ runner.temp }}/workshop.yaml -o json > ${{ runner.temp }}/workshop.json
-        CONTENT_IMAGE=$(jq -r '.spec.workshop.image' ${{ runner.temp }}/workshop.json)
-        CONTENT_FILES=$(jq -r '[.spec.workshop.files[].image.url][0]' ${{ runner.temp }}/workshop.json)
-        if [ "$CONTENT_IMAGE" == "ghcr.io/${REPOSITORY_OWNER}/${REPOSITORY_NAME}-image:${REPOSITORY_TAG}" ]; then
-          echo "::set-output name=build_image::true"
-        fi
-        if [ "$CONTENT_FILES" == "ghcr.io/${REPOSITORY_OWNER}/${REPOSITORY_NAME}-files:${REPOSITORY_TAG}" ]; then
-          echo "::set-output name=build_files::true"
-        fi
+        ${{github.action_path}}/scripts/process_workshops.sh \
+          '${{inputs.path}}' \
+          $REPOSITORY_NAME \
+          $REPOSITORY_OWNER \
+          $REPOSITORY_TAG \
+          '${{inputs.image-regular-expression}}' \
+          '${{inputs.image-replacement-string}}' \
+          '${{inputs.workshop-resource-file}}' \
+          '${{runner.temp}}'
 
     - name: Build workshop files
       shell: bash
-      if: steps.process_workshop.outputs.build_files == 'true'
+      if: steps.process_workshops.outputs.build_files == 'true'
       run: |
-        imgpkg --debug push --file ${{ inputs.path }} \
+        imgpkg --debug push --file ${{inputs.path}} \
           --image ghcr.io/${REPOSITORY_OWNER}/${REPOSITORY_NAME}-files:${REPOSITORY_TAG} \
           --registry-username=${{github.actor}} \
           --registry-password=${{env.GITHUB_TOKEN}}
@@ -85,16 +74,16 @@ runs:
       if: steps.process_workshop.outputs.build_image == 'true'
       uses: docker/login-action@v1
       with:
-        username: ${{ github.actor }}
-        password: ${{ env.GITHUB_TOKEN }}
+        username: ${{github.actor}}
+        password: ${{env.GITHUB_TOKEN}}
         registry: ghcr.io
 
     - name: Build workshop image
       if: steps.process_workshop.outputs.build_image == 'true'
       uses: docker/build-push-action@v2
       with:
-        context: ${{ inputs.path }}
-        file: ${{ inputs.workshop-image-docker-file }}
+        context: ${{inputs.path}}
+        file: ${{inputs.workshop-image-docker-file}}
         tags: ghcr.io/${{env.REPOSITORY_OWNER}}/${{env.REPOSITORY_NAME}}-image:${{env.REPOSITORY_TAG}}
         push: true
 
@@ -102,29 +91,29 @@ runs:
       id: create_release
       uses: actions/create-release@v1
       env:
-        GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{env.GITHUB_TOKEN}}
       with:
         tag_name: ${{env.REPOSITORY_TAG}}
         release_name: "${{env.REPOSITORY_NAME}}:${{env.REPOSITORY_TAG}}"
         draft: false
         prerelease: false
 
-    - name: Upload workshop.yaml
+    - name: Upload workshops.yaml
       uses: actions/upload-release-asset@v1
       env:
-        GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{env.GITHUB_TOKEN}}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ${{ runner.temp }}/workshop.yaml
-        asset_name: workshop.yaml
+        upload_url: ${{steps.create_release.outputs.upload_url}}
+        asset_path: ${{runner.temp}}/workshops.yaml
+        asset_name: workshops.yaml
         asset_content_type: text/yaml
 
     - name: Upload trainingportal.yaml
       uses: actions/upload-release-asset@v1
       env:
-        GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{env.GITHUB_TOKEN}}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ${{ inputs.path }}/${{ inputs.trainingportal-resource-file }}
+        upload_url: ${{steps.create_release.outputs.upload_url}}
+        asset_path: ${{inputs.path}}/${{inputs.trainingportal-resource-file}}
         asset_name: trainingportal.yaml
         asset_content_type: text/yaml
