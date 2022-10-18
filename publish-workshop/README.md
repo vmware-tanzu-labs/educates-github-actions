@@ -148,7 +148,7 @@ spec:
   workshop:
     files:
     - image:
-        url: $(image_repository)/{repository}/{name}-files:latest
+        url: $(image_repository)/{repository}-files:latest
       includePaths:
       - /workshops/{name}/workshop/**
       newRootPath: workshops/{name}
