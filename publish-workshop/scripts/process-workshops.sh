@@ -17,7 +17,8 @@ REPOSITORY_TAG=$4
 IMAGE_PATTERN=$5
 IMAGE_REPLACEMENT=$6
 WORKSHOP_FILENAME=$7
-OUTPUT_DIRECTORY=$8
+PORTAL_FILENAME=$8
+OUTPUT_DIRECTORY=$9
 
 # Make the output directory and sub directories for processed files.
 
@@ -56,10 +57,14 @@ if [ -d $REPOSITORY_PATH/workshops ]; then
         workshop=$(basename $(dirname $(dirname $file)))
         process_workshop_file $file > $OUTPUT_DIRECTORY/workshops/$workshop.yaml
     done
+
+    echo "workshops_bundle=true" >> $GITHUB_OUTPUT
 else
     workshop=$REPOSITORY_NAME
     file=$REPOSITORY_PATH/$WORKSHOP_FILENAME
     process_workshop_file $file > $OUTPUT_DIRECTORY/workshops/$workshop.yaml
+
+    echo "workshops_bundle=false" >> $GITHUB_OUTPUT
 fi
 
 # Merge all the workshop files into one file and create archive as well.
@@ -73,9 +78,15 @@ tar -z -C $OUTPUT_DIRECTORY -cvf $OUTPUT_DIRECTORY/workshops.tar.gz workshops
 # workshops only one of each can be created, and not one for each workshop.
 
 if grep "url: *ghcr.io/${REPOSITORY_OWNER}/${REPOSITORY_NAME}-image:${REPOSITORY_TAG}" $OUTPUT_DIRECTORY/workshops.yaml; then
-    echo "::set-output name=build_image::true"
+    echo "build_image=true" >> $GITHUB_OUTPUT
 fi
 
 if grep "url: *ghcr.io/${REPOSITORY_OWNER}/${REPOSITORY_NAME}-files:${REPOSITORY_TAG}" $OUTPUT_DIRECTORY/workshops.yaml; then
-    echo "::set-output name=build_files::true"
+    echo "build_files=true" >> $GITHUB_OUTPUT
+fi
+
+# Mark if training portal file was provided and needs to be published.
+
+if -f $PORTAL_FILENAME; then
+    echo "portal_file=true" >> $GITHUB_OUTPUT
 fi
