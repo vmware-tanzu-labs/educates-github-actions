@@ -87,6 +87,6 @@ fi
 
 # Mark if training portal file was provided and needs to be published.
 
-if -f $PORTAL_FILENAME; then
+if test -f $PORTAL_FILENAME; then
     echo "portal_file=true" >> $GITHUB_OUTPUT
 fi
