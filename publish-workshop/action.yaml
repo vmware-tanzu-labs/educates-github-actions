@@ -59,7 +59,7 @@ runs:
           '${{inputs.image-regular-expression}}' \
           '${{inputs.image-replacement-string}}' \
           '${{inputs.workshop-resource-file}}' \
-          '${{inputs.trainingportal-resource-file}}' \'
+          '${{inputs.trainingportal-resource-file}}' \
           '${{runner.temp}}'
 
     - name: Build workshop files
