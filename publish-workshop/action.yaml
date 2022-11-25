@@ -51,7 +51,7 @@ runs:
       shell: bash
       id: process_workshops
       run: |
-        GITHUB_OUTPUT=$GITHUB_OUTPUT ${{github.action_path}}/scripts/process-workshops.sh \
+        ${{github.action_path}}/scripts/process-workshops.sh \
           '${{inputs.path}}' \
           $REPOSITORY_NAME \
           $REPOSITORY_OWNER \
@@ -72,7 +72,7 @@ runs:
           --registry-password=${{env.GITHUB_TOKEN}}
 
     - name: Login to GitHub container registry
-      if: steps.process_workshop.outputs.build_image == 'true'
+      if: steps.process_workshops.outputs.build_image == 'true'
       uses: docker/login-action@v1
       with:
         username: ${{github.actor}}
@@ -80,7 +80,7 @@ runs:
         registry: ghcr.io
 
     - name: Build workshop image
-      if: steps.process_workshop.outputs.build_image == 'true'
+      if: steps.process_workshops.outputs.build_image == 'true'
       uses: docker/build-push-action@v2
       with:
         context: ${{inputs.path}}
@@ -100,7 +100,7 @@ runs:
         prerelease: false
 
     - name: Upload workshop.yaml
-      if: steps.process_workshop.outputs.workshops_bundle == 'false'
+      if: steps.process_workshops.outputs.workshops_bundle == 'false'
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{env.GITHUB_TOKEN}}
@@ -111,7 +111,7 @@ runs:
         asset_content_type: text/yaml
 
     - name: Upload workshops.yaml
-      if: steps.process_workshop.outputs.workshops_bundle == 'true'
+      if: steps.process_workshops.outputs.workshops_bundle == 'true'
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{env.GITHUB_TOKEN}}
@@ -132,7 +132,7 @@ runs:
         asset_content_type: application/gzip
 
     - name: Upload trainingportal.yaml
-      if: steps.process_workshop.outputs.portal_file == 'true'
+      if: steps.process_workshops.outputs.portal_file == 'true'
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{env.GITHUB_TOKEN}}
