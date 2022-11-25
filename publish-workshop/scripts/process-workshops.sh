@@ -54,14 +54,19 @@ function process_workshop_file() {
 if [ -d $REPOSITORY_PATH/workshops ]; then
     for file in $REPOSITORY_PATH/workshops/*/$WORKSHOP_FILENAME; do
         workshop=$(basename $(dirname $(dirname $file)))
-        process_workshop_file $file > $OUTPUT_DIRECTORY/workshops/$workshop.yaml
+
+        mkdir -p $OUTPUT_DIRECTORY/workshops/$workshop/resources
+
+        process_workshop_file $file > $OUTPUT_DIRECTORY/workshops/$workshop/resources/workshop.yaml
     done
 
     WORKSHOP_DEFINITIONS=workshops.yaml
 else
     workshop=$REPOSITORY_NAME
-    file=$REPOSITORY_PATH/$WORKSHOP_FILENAME
-    process_workshop_file $file > $OUTPUT_DIRECTORY/workshops/$workshop.yaml
+
+    mkdir -p $OUTPUT_DIRECTORY/workshops/$workshop/resources
+
+    process_workshop_file $REPOSITORY_PATH/$WORKSHOP_FILENAME > $OUTPUT_DIRECTORY/workshops/$workshop/resources/workshop.yaml
 
     WORKSHOP_DEFINITIONS=workshop.yaml
 fi
