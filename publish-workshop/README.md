@@ -52,7 +52,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Create release
-        uses: vmware-tanzu-labs/educates-github-actions/publish-workshop@v4
+        uses: vmware-tanzu-labs/educates-github-actions/publish-workshop@v5
         with:
           token: ${{secrets.GITHUB_TOKEN}}
 ```
