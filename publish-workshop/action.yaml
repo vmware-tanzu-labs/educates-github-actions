@@ -60,8 +60,7 @@ runs:
           '${{inputs.image-replacement-string}}' \
           '${{inputs.workshop-resource-file}}' \
           '${{inputs.trainingportal-resource-file}}' \
-          '${{runner.temp}}' \
-          '${{env.GITHUB_OUTPUT}}'
+          '${{runner.temp}}'
 
     - name: Build workshop files
       shell: bash

@@ -19,7 +19,6 @@ IMAGE_REPLACEMENT=$6
 WORKSHOP_FILENAME=$7
 PORTAL_FILENAME=$8
 OUTPUT_DIRECTORY=$9
-GITHUB_OUTPUT=$10
 
 # Make the output directory and sub directories for processed files.
 
