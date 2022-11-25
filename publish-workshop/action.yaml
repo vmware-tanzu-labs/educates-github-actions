@@ -98,46 +98,52 @@ runs:
         name: "${{env.REPOSITORY_NAME}}:${{env.REPOSITORY_TAG}}"
         draft: false
         prerelease: false
+        fail_on_unmatched_files: false
+        files: |
+          ${{runner.temp}}/workshops.tar.gz
+          ${{runner.temp}}/workshop.yaml
+          ${{runner.temp}}/workshops.yaml
+          ${{inputs.path}}/${{inputs.trainingportal-resource-file}}
 
-    - name: Upload workshop.yaml
-      if: steps.process_workshops.outputs.workshops_bundle == 'false'
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{env.GITHUB_TOKEN}}
-      with:
-        upload_url: ${{steps.create_release.outputs.upload_url}}
-        asset_path: ${{runner.temp}}/workshops.yaml
-        asset_name: workshop.yaml
-        asset_content_type: text/yaml
+    # - name: Upload workshop.yaml
+    #   if: steps.process_workshops.outputs.workshops_bundle == 'false'
+    #   uses: actions/upload-release-asset@v1
+    #   env:
+    #     GITHUB_TOKEN: ${{env.GITHUB_TOKEN}}
+    #   with:
+    #     upload_url: ${{steps.create_release.outputs.upload_url}}
+    #     asset_path: ${{runner.temp}}/workshops.yaml
+    #     asset_name: workshop.yaml
+    #     asset_content_type: text/yaml
 
-    - name: Upload workshops.yaml
-      if: steps.process_workshops.outputs.workshops_bundle == 'true'
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{env.GITHUB_TOKEN}}
-      with:
-        upload_url: ${{steps.create_release.outputs.upload_url}}
-        asset_path: ${{runner.temp}}/workshops.yaml
-        asset_name: workshops.yaml
-        asset_content_type: text/yaml
+    # - name: Upload workshops.yaml
+    #   if: steps.process_workshops.outputs.workshops_bundle == 'true'
+    #   uses: actions/upload-release-asset@v1
+    #   env:
+    #     GITHUB_TOKEN: ${{env.GITHUB_TOKEN}}
+    #   with:
+    #     upload_url: ${{steps.create_release.outputs.upload_url}}
+    #     asset_path: ${{runner.temp}}/workshops.yaml
+    #     asset_name: workshops.yaml
+    #     asset_content_type: text/yaml
 
-    - name: Upload workshops.tar.gz
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{env.GITHUB_TOKEN}}
-      with:
-        upload_url: ${{steps.create_release.outputs.upload_url}}
-        asset_path: ${{runner.temp}}/workshops.tar.gz
-        asset_name: workshops.tar.gz
-        asset_content_type: application/gzip
+    # - name: Upload workshops.tar.gz
+    #   uses: actions/upload-release-asset@v1
+    #   env:
+    #     GITHUB_TOKEN: ${{env.GITHUB_TOKEN}}
+    #   with:
+    #     upload_url: ${{steps.create_release.outputs.upload_url}}
+    #     asset_path: ${{runner.temp}}/workshops.tar.gz
+    #     asset_name: workshops.tar.gz
+    #     asset_content_type: application/gzip
 
-    - name: Upload trainingportal.yaml
-      if: steps.process_workshops.outputs.portal_file == 'true'
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{env.GITHUB_TOKEN}}
-      with:
-        upload_url: ${{steps.create_release.outputs.upload_url}}
-        asset_path: ${{inputs.path}}/${{inputs.trainingportal-resource-file}}
-        asset_name: trainingportal.yaml
-        asset_content_type: text/yaml
+    # - name: Upload trainingportal.yaml
+    #   if: steps.process_workshops.outputs.portal_file == 'true'
+    #   uses: actions/upload-release-asset@v1
+    #   env:
+    #     GITHUB_TOKEN: ${{env.GITHUB_TOKEN}}
+    #   with:
+    #     upload_url: ${{steps.create_release.outputs.upload_url}}
+    #     asset_path: ${{inputs.path}}/${{inputs.trainingportal-resource-file}}
+    #     asset_name: trainingportal.yaml
+    #     asset_content_type: text/yaml

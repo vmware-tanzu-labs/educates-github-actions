@@ -51,7 +51,6 @@ function process_workshop_file() {
         --data-value workshop.file="$(basename $WORKSHOP_FILENAME)"
 }
 
-
 if [ -d $REPOSITORY_PATH/workshops ]; then
     for file in $REPOSITORY_PATH/workshops/*/$WORKSHOP_FILENAME; do
         workshop=$(basename $(dirname $(dirname $file)))
@@ -59,17 +58,21 @@ if [ -d $REPOSITORY_PATH/workshops ]; then
     done
 
     echo "workshops_bundle=true" >> $GITHUB_OUTPUT
+
+    WORKSHOP_DEFINITIONS=workshops.yaml
 else
     workshop=$REPOSITORY_NAME
     file=$REPOSITORY_PATH/$WORKSHOP_FILENAME
     process_workshop_file $file > $OUTPUT_DIRECTORY/workshops/$workshop.yaml
 
     echo "workshops_bundle=false" >> $GITHUB_OUTPUT
+
+    WORKSHOP_DEFINITIONS=workshop.yaml
 fi
 
 # Merge all the workshop files into one file and create archive as well.
 
-ytt -f $OUTPUT_DIRECTORY/workshops > $OUTPUT_DIRECTORY/workshops.yaml
+ytt -f $OUTPUT_DIRECTORY/workshops > $OUTPUT_DIRECTORY/$WORKSHOP_DEFINITIONS
 
 tar -z -C $OUTPUT_DIRECTORY -cvf $OUTPUT_DIRECTORY/workshops.tar.gz workshops
 
@@ -77,16 +80,16 @@ tar -z -C $OUTPUT_DIRECTORY -cvf $OUTPUT_DIRECTORY/workshops.tar.gz workshops
 # container image for a custom workshop base image. When there are multiple
 # workshops only one of each can be created, and not one for each workshop.
 
-if grep "url: *ghcr.io/${REPOSITORY_OWNER}/${REPOSITORY_NAME}-image:${REPOSITORY_TAG}" $OUTPUT_DIRECTORY/workshops.yaml; then
+if grep "url: *ghcr.io/${REPOSITORY_OWNER}/${REPOSITORY_NAME}-image:${REPOSITORY_TAG}" $OUTPUT_DIRECTORY/$WORKSHOP_DEFINITIONS; then
     echo "build_image=true" >> $GITHUB_OUTPUT
 fi
 
-if grep "url: *ghcr.io/${REPOSITORY_OWNER}/${REPOSITORY_NAME}-files:${REPOSITORY_TAG}" $OUTPUT_DIRECTORY/workshops.yaml; then
+if grep "url: *ghcr.io/${REPOSITORY_OWNER}/${REPOSITORY_NAME}-files:${REPOSITORY_TAG}" $OUTPUT_DIRECTORY/$WORKSHOP_DEFINITIONS; then
     echo "build_files=true" >> $GITHUB_OUTPUT
 fi
 
 # Mark if training portal file was provided and needs to be published.
 
-if test -f $PORTAL_FILENAME; then
-    echo "portal_file=true" >> $GITHUB_OUTPUT
-fi
+# if test -f $PORTAL_FILENAME; then
+#     echo "portal_file=true" >> $GITHUB_OUTPUT
+# fi
