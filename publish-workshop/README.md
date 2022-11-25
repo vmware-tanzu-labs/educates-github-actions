@@ -100,7 +100,7 @@ resource definition contained `spec.workshop.image` and `spec.workshop.files`
 set in the following form:
 
 ```
-apiVersion: training.eduk8s.io/v1alpha2
+apiVersion: training.educates.dev/v1beta1
 kind: Workshop
 metadata:
   name: {name}
