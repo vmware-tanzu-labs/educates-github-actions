@@ -61,7 +61,7 @@ runs:
           '${{inputs.workshop-resource-file}}' \
           '${{inputs.trainingportal-resource-file}}' \
           '${{runner.temp}}' \
-          $GITHUB_OUTPUT
+          '${{env.GITHUB_OUTPUT}}'
 
     - name: Build workshop files
       shell: bash
