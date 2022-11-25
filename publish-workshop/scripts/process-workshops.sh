@@ -19,6 +19,7 @@ IMAGE_REPLACEMENT=$6
 WORKSHOP_FILENAME=$7
 PORTAL_FILENAME=$8
 OUTPUT_DIRECTORY=$9
+GITHUB_OUTPUT=$10
 
 # Make the output directory and sub directories for processed files.
 
@@ -57,15 +58,11 @@ if [ -d $REPOSITORY_PATH/workshops ]; then
         process_workshop_file $file > $OUTPUT_DIRECTORY/workshops/$workshop.yaml
     done
 
-    echo "workshops_bundle=true" >> $GITHUB_OUTPUT
-
     WORKSHOP_DEFINITIONS=workshops.yaml
 else
     workshop=$REPOSITORY_NAME
     file=$REPOSITORY_PATH/$WORKSHOP_FILENAME
     process_workshop_file $file > $OUTPUT_DIRECTORY/workshops/$workshop.yaml
-
-    echo "workshops_bundle=false" >> $GITHUB_OUTPUT
 
     WORKSHOP_DEFINITIONS=workshop.yaml
 fi
@@ -87,9 +84,3 @@ fi
 if grep "url: *ghcr.io/${REPOSITORY_OWNER}/${REPOSITORY_NAME}-files:${REPOSITORY_TAG}" $OUTPUT_DIRECTORY/$WORKSHOP_DEFINITIONS; then
     echo "build_files=true" >> $GITHUB_OUTPUT
 fi
-
-# Mark if training portal file was provided and needs to be published.
-
-# if test -f $PORTAL_FILENAME; then
-#     echo "portal_file=true" >> $GITHUB_OUTPUT
-# fi
