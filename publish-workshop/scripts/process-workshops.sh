@@ -77,6 +77,8 @@ ytt -f $OUTPUT_DIRECTORY/workshops > $OUTPUT_DIRECTORY/$WORKSHOP_DEFINITIONS
 
 tar -z -C $OUTPUT_DIRECTORY -cvf $OUTPUT_DIRECTORY/workshops.tar.gz workshops
 
+(cd $OUTPUT_DIRECTORY; zip $OUTPUT_DIRECTORY/workshops.zip -r workshops)
+
 # Determine if we need to build an OCI image artefact for workshop content or a
 # container image for a custom workshop base image. When there are multiple
 # workshops only one of each can be created, and not one for each workshop.

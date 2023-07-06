@@ -101,6 +101,7 @@ runs:
         fail_on_unmatched_files: false
         files: |
           ${{runner.temp}}/workshops.tar.gz
+          ${{runner.temp}}/workshops.zip
           ${{runner.temp}}/workshop.yaml
           ${{runner.temp}}/workshops.yaml
           ${{inputs.path}}/${{inputs.trainingportal-resource-file}}
