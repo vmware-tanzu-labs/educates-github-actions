@@ -1,5 +1,5 @@
 name: Workshop Publisher
-description: Publish Educates workshops to GitHub Container Registry.
+description: Publish a single Educates workshop to GitHub Container Registry.
 
 inputs:
   token:
@@ -17,18 +17,6 @@ inputs:
     description: "Relative path under workshop directory to the TrainingPortal resource file."
     required: false
     default: 'resources/trainingportal.yaml'
-  workshop-image-docker-file:
-    description: "Path under workshop directory to the Dockerfile for the custom workshop image."
-    required: false
-    default: 'Dockerfile'
-  image-regular-expression:
-    description: "Regular expression to match any image references in Workshop resource file."
-    required: false
-    default: '\$\(image_repository\)/(.+):latest'
-  image-replacement-string:
-    description: "Replacement string for any matched image references in the Workshop resource file."
-    required: false
-    default: '{registry}/$1:{tag}'
 
 runs:
   using: composite
@@ -37,6 +25,14 @@ runs:
     - name: Install Carvel tools
       shell: bash
       run: curl -L https://carvel.dev/install.sh | bash
+
+    - name: Install Educates CLI
+      shell: bash
+      run: |
+        # curl -Lo /usr/local/bin/educates https://github.com/vmware-tanzu-labs/educates-training-platform/releases/download/2.6.0-alpha.31/educates-linux-amd64
+        # chmod +x /usr/local/bin/educates
+        imgpkg pull -i ghcr.io/vmware-tanzu-labs/educates-client-programs:2.6.0-alpha.31 -o /tmp/client-programs
+        mv /tmp/client-programs/educates-linux-amd64 /usr/local/bin/educates
 
     - name: Calculate release variables
       shell: bash
@@ -47,48 +43,25 @@ runs:
         echo "REPOSITORY_TAG=${GITHUB_REF#refs/tags/}" >>${GITHUB_ENV}
         echo "GITHUB_TOKEN=${{inputs.token}}" >>${GITHUB_ENV}
 
-    - name: Process workshop files
+    - name: Publish workshop and create workshop definition
       shell: bash
-      id: process_workshops
-      run: |
-        ${{github.action_path}}/scripts/process-workshops.sh \
-          '${{inputs.path}}' \
-          $REPOSITORY_NAME \
-          $REPOSITORY_OWNER \
-          $REPOSITORY_TAG \
-          '${{inputs.image-regular-expression}}' \
-          '${{inputs.image-replacement-string}}' \
-          '${{inputs.workshop-resource-file}}' \
-          '${{inputs.trainingportal-resource-file}}' \
-          '${{runner.temp}}'
-
-    - name: Build workshop files
-      shell: bash
-      if: steps.process_workshops.outputs.build_files == 'true'
-      run: |
-        imgpkg --debug push --file ${{inputs.path}} \
-          --image ghcr.io/${REPOSITORY_OWNER}/${REPOSITORY_NAME}-files:${REPOSITORY_TAG} \
+      run : |
+        mkdir -p ${{runner.temp}}/workshops/${REPOSITORY_NAME}/resources
+        educates publish-workshop '${{inputs.path}}' \
+          --workshop-file '${{inputs.workshop-resource-file}}' \
+          --export-workshop ${{runner.temp}}/workshops/${REPOSITORY_NAME}/resources/workshop.yaml \
+          --image-repository=ghcr.io/${REPOSITORY_OWNER} \
+          --workshop-version=${REPOSITORY_TAG} \
           --registry-username=${{github.actor}} \
           --registry-password=${{env.GITHUB_TOKEN}}
 
-    - name: Login to GitHub container registry
-      if: steps.process_workshops.outputs.build_image == 'true'
-      uses: docker/login-action@v1
-      with:
-        username: ${{github.actor}}
-        password: ${{env.GITHUB_TOKEN}}
-        registry: ghcr.io
+    - name: Generate archives containing the workshop definition
+      shell: bash
+      run: |
+        (cd ${{runner.temp}}; tar cvfz workshops.tar.gz workshops)
+        (cd ${{runner.temp}}; zip workshops.zip -r workshops)
 
-    - name: Build workshop image
-      if: steps.process_workshops.outputs.build_image == 'true'
-      uses: docker/build-push-action@v2
-      with:
-        context: ${{inputs.path}}
-        file: ${{inputs.workshop-image-docker-file}}
-        tags: ghcr.io/${{env.REPOSITORY_OWNER}}/${{env.REPOSITORY_NAME}}-image:${{env.REPOSITORY_TAG}}
-        push: true
-
-    - name: Create release
+    - name: Create the GitHub release for the workshop
       id: create_release
       uses: softprops/action-gh-release@v1
       env:
@@ -102,6 +75,5 @@ runs:
         files: |
           ${{runner.temp}}/workshops.tar.gz
           ${{runner.temp}}/workshops.zip
-          ${{runner.temp}}/workshop.yaml
-          ${{runner.temp}}/workshops.yaml
+          ${{runner.temp}}/workshops/${{env.REPOSITORY_NAME}}/resources/workshop.yaml
           ${{inputs.path}}/${{inputs.trainingportal-resource-file}}
