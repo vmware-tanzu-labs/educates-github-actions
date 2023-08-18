@@ -29,9 +29,9 @@ runs:
     - name: Install Educates CLI
       shell: bash
       run: |
-        # curl -Lo /usr/local/bin/educates https://github.com/vmware-tanzu-labs/educates-training-platform/releases/download/2.6.0-alpha.31/educates-linux-amd64
+        # curl -Lo /usr/local/bin/educates https://github.com/vmware-tanzu-labs/educates-training-platform/releases/download/2.6.0/educates-linux-amd64
         # chmod +x /usr/local/bin/educates
-        imgpkg pull -i ghcr.io/vmware-tanzu-labs/educates-client-programs:2.6.0-alpha.31 -o /tmp/client-programs
+        imgpkg pull -i ghcr.io/vmware-tanzu-labs/educates-client-programs:2.6.0 -o /tmp/client-programs
         mv /tmp/client-programs/educates-linux-amd64 /usr/local/bin/educates
 
     - name: Calculate release variables
