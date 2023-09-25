@@ -40,7 +40,7 @@ runs:
         REPOSITORY_NAME=${{github.event.repository.name}}
         echo "REPOSITORY_NAME=${REPOSITORY_NAME,,}" >>${GITHUB_ENV}
         echo "REPOSITORY_OWNER=${GITHUB_REPOSITORY_OWNER,,}" >>${GITHUB_ENV}
-        echo "REPOSITORY_TAG=${GITHUB_REF#refs/tags/}" >>${GITHUB_ENV}
+        echo "REPOSITORY_TAG=${GITHUB_REF##*/}" >>${GITHUB_ENV}
         echo "GITHUB_TOKEN=${{inputs.token}}" >>${GITHUB_ENV}
 
     - name: Publish workshop and create workshop definition
