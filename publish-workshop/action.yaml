@@ -61,8 +61,24 @@ runs:
         (cd ${{runner.temp}}; tar cvfz workshops.tar.gz workshops)
         (cd ${{runner.temp}}; zip workshops.zip -r workshops)
 
+    - uses: actions/upload-artifact@v3
+      with:
+        name: workshop.yaml
+        path: ${{runner.temp}}/workshops/${{env.REPOSITORY_NAME}}/resources/workshop.yaml
+
+    - uses: actions/upload-artifact@v3
+      with:
+        name: workshops.tar.gz
+        path: ${{runner.temp}}/workshops.tar.gz
+
+    - uses: actions/upload-artifact@v3
+      with:
+        name: workshops.zip
+        path: ${{runner.temp}}/workshops.zip
+
     - name: Create the GitHub release for the workshop
       id: create_release
+      if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
       env:
         GITHUB_TOKEN: ${{env.GITHUB_TOKEN}}
